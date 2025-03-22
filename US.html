@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบนัดหมายตรวจอัลตร้าซาวด์</title>
+    <style>
+        body {
+            font-family: 'Sarabun', 'Prompt', sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f8fa;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #0066cc;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+        
+        input[type="date"] {
+            padding: 10px 12px;
+        }
+        
+        input:focus, select:focus {
+            border-color: #0066cc;
+            outline: none;
+        }
+        
+        .btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 15px 0;
+            width: 100%;
+            font-size: 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background-color: #0055aa;
+        }
+        
+        .info-box {
+            background-color: #e6f3ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+        
+        .success-message {
+            background-color: #dff2e6;
+            color: #2d7051;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 20px;
+            display: none;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .time-slot {
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .time-slot:hover {
+            border-color: #0066cc;
+            background-color: #e6f3ff;
+        }
+        
+        .time-slot.selected {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        
+        @media (max-width: 600px) {
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ระบบนัดหมายตรวจอัลตร้าซาวด์</h1>
+        
+        <div class="info-box">
+            การตรวจอัลตร้าซาวด์เป็นการตรวจที่ปลอดภัย ไม่มีรังสี ใช้เวลาประมาณ 15-30 นาที โดยไม่ต้องมีการเตรียมตัวเป็นพิเศษ (ยกเว้นกรณีตรวจช่องท้องอาจต้องงดอาหารก่อนตรวจ)
+        </div>
+        
+        <form id="appointmentForm">
+            <div class="form-group">
+                <label for="name">ชื่อ-นามสกุล</label>
+                <input type="text" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="tel">เบอร์โทรศัพท์</label>
+                <input type="tel" id="tel" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id">เลขบัตรประชาชน หรือ เลขประจำตัวโรงพยาบาล (HN)</label>
+                <input type="text" id="id" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="type">ประเภทการตรวจอัลตร้าซาวด์</label>
+                <select id="type" required>
+                    <option value="">-- กรุณาเลือกประเภทการตรวจ --</option>
+                    <option value="abdomen">อัลตร้าซาวด์ช่องท้อง</option>
+                    <option value="heart">อัลตร้าซาวด์หัวใจ</option>
+                    <option value="thyroid">อัลตร้าซาวด์ต่อมไทรอยด์</option>
+                    <option value="breast">อัลตร้าซาวด์เต้านม</option>
+                    <option value="kidney">อัลตร้าซาวด์ไต</option>
+                    <option value="other">อื่นๆ</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">วันที่ต้องการนัดหมาย</label>
+                <input type="date" id="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label>เลือกช่วงเวลา</label>
+                <div class="time-slots">
+                    <div class="time-slot" onclick="selectTimeSlot(this)">9:00 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">9:30 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">10:00 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">10:30 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">11:00 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">11:30 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">13:00 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">13:30 น.</div>
+                    <div class="time-slot" onclick="selectTimeSlot(this)">14:00 น.</div>
+                </div>
+                <input type="hidden" id="selectedTime" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+                <input type="text" id="notes">
+            </div>
+            
+            <button type="button" class="btn" onclick="submitAppointment()">ยืนยันการนัดหมาย</button>
+        </form>
+        
+        <div class="success-message" id="successMessage">
+            <p>การนัดหมายของท่านเสร็จสมบูรณ์</p>
+            <p>กรุณามาก่อนเวลานัด 30 นาทีเพื่อเตรียมความพร้อม</p>
+            <p>หากมีข้อสงสัยกรุณาติดต่อ 02-XXX-XXXX</p>
+        </div>
+    </div>
+
+    <script>
+        function selectTimeSlot(element) {
+            // ยกเลิกการเลือกช่วงเวลาอื่นๆ
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // เลือกช่วงเวลาที่คลิก
+            element.classList.add('selected');
+            document.getElementById('selectedTime').value = element.innerText;
+        }
+        
+        function submitAppointment() {
+            // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
+            const name = document.getElementById('name').value;
+            const tel = document.getElementById('tel').value;
+            const id = document.getElementById('id').value;
+            const type = document.getElementById('type').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('selectedTime').value;
+            
+            if (!name || !tel || !id || !type || !date || !time) {
+                alert('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+                return;
+            }
+            
+            // ในสถานการณ์จริงควรส่งข้อมูลไปยังเซิร์ฟเวอร์
+            // แต่ในตัวอย่างนี้จะแสดงข้อความยืนยันแทน
+            document.getElementById('appointmentForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        }
+        
+        // ตั้งค่าวันที่ให้เลือกได้ตั้งแต่วันพรุ่งนี้ขึ้นไป 60 วัน
+        const dateInput = document.getElementById('date');
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const maxDate = new Date();
+        maxDate.setDate(maxDate.getDate() + 60);
+        
+        dateInput.min = tomorrow.toISOString().split('T')[0];
+        dateInput.max = maxDate.toISOString().split('T')[0];
+    </script>
+</body>
+</html>
